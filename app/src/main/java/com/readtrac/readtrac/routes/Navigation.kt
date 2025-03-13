@@ -41,6 +41,9 @@ fun AppNavigation() {
             composable("home") {
                 HomeScreen(books = sampleBooks)
             }
+            composable("details") {
+                BookDetailsScreen(book = sampleBooks.first())
+            }
         }
     }
 }
@@ -63,9 +66,16 @@ fun BottomNavigationBar(
             icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
             label = { Text("Home") }
         )
+        NavigationBarItem(
+            selected = currentRoute == "details",
+            onClick = { onItemSelected("details") },
+            icon = { Icon(Icons.Filled.Info, contentDescription = "Details") },
+            label = { Text("Details") }
+        )
     }
 }
 
 val sampleBooks = listOf(
+    Book("JCU Student Manual", "JCU SchoolBoard", 0.3f),
     Book("1984", "George Orwell", 0.5f),
 )
