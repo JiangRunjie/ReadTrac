@@ -44,6 +44,9 @@ fun AppNavigation() {
             composable("details") {
                 BookDetailsScreen(book = sampleBooks.first())
             }
+            composable("recommendations") {
+                RecommendationScreen(recommendedBooks = sampleBooks)
+            }
         }
     }
 }
@@ -72,10 +75,17 @@ fun BottomNavigationBar(
             icon = { Icon(Icons.Filled.Info, contentDescription = "Details") },
             label = { Text("Details") }
         )
+        NavigationBarItem(
+            selected = currentRoute == "recommendations",
+            onClick = { onItemSelected("recommendations") },
+            icon = { Icon(Icons.Filled.Star, contentDescription = "Recommendations") },
+            label = { Text("Recommend") }
+        )
     }
 }
 
 val sampleBooks = listOf(
-    Book("JCU Student Manual", "JCU SchoolBoard", 0.3f),
     Book("1984", "George Orwell", 0.5f),
+    Book("Brave New World", "Aldous Huxley", 0.3f),
+    Book("Fahrenheit 451", "Ray Bradbury", 0.7f)
 )
