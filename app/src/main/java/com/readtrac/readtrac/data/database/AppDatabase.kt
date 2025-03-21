@@ -5,7 +5,9 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.readtrac.readtrac.data.dao.BookDao
+import com.readtrac.readtrac.data.dao.ReviewDao
 import com.readtrac.readtrac.data.model.BookEntity
+import com.readtrac.readtrac.data.model.ReviewEntity
 
 /**
  * Main database class for the ReadTrac application
@@ -14,12 +16,21 @@ import com.readtrac.readtrac.data.model.BookEntity
  * SQLite database. It provides the DAOs that can be used to
  * interact with the database.
  */
-@Database(entities = [BookEntity::class], version = 1, exportSchema = false)
+@Database(
+    entities = [BookEntity::class, ReviewEntity::class], 
+    version = 1, 
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
     /**
      * Returns the BookDao to access book data
      */
     abstract fun bookDao(): BookDao
+    
+    /**
+     * Returns the ReviewDao to access review data
+     */
+    abstract fun reviewDao(): ReviewDao
 
     companion object {
         @Volatile
@@ -41,6 +52,19 @@ abstract class AppDatabase : RoomDatabase() {
                 INSTANCE = instance
                 instance
             }
+        }
+        
+        /**
+         * Creates an in-memory version of the database for testing
+         * 
+         * @param context Application context
+         * @return An in-memory database instance
+         */
+        fun createInMemoryDatabase(context: Context): AppDatabase {
+            return Room.inMemoryDatabaseBuilder(
+                context.applicationContext,
+                AppDatabase::class.java
+            ).allowMainThreadQueries().build()
         }
     }
 }

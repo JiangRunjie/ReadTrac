@@ -2,6 +2,7 @@ package com.readtrac.readtrac.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.Date
 
 /**
  * Entity representing a book in the database
@@ -10,6 +11,11 @@ import androidx.room.PrimaryKey
  * @property title The title of the book
  * @property author The author of the book
  * @property progress The reading progress as a float between 0 and 1
+ * @property rating The user's rating of the book (0-5 stars, can be null if not rated)
+ * @property genre The book's genre classification (optional)
+ * @property publishedDate The book's publication date (optional)
+ * @property pageCount The total number of pages in the book (optional)
+ * @property dateAdded Date when the book was added to the reading list
  * @property summary Optional summary of the book
  * @property notes Optional notes about the book
  */
@@ -20,6 +26,11 @@ data class BookEntity(
     val title: String,
     val author: String,
     val progress: Float = 0f,
+    val rating: Float? = null,
+    val genre: String? = null,
+    val publishedDate: String? = null,
+    val pageCount: Int? = null,
+    val dateAdded: Long = System.currentTimeMillis(),
     val summary: String? = null,
     val notes: String? = null
 )
