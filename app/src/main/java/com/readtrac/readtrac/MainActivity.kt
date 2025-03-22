@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.readtrac.readtrac.routes.AppNavigation
 import com.readtrac.readtrac.ui.theme.ReadTracTheme
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Main entry point for the ReadTrac application
@@ -14,6 +15,7 @@ import com.readtrac.readtrac.ui.theme.ReadTracTheme
  * framework for the application. It serves as the container for all
  * other screens in the application.
  */
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     /**
      * Initializes the activity and sets up the Compose UI

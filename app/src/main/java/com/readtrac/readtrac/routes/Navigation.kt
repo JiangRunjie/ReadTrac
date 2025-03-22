@@ -9,43 +9,89 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.compose.*
 import com.readtrac.readtrac.ui.view.*
+import com.readtrac.readtrac.viewmodel.BookViewModel
+import com.readtrac.readtrac.viewmodel.ReviewViewModel
+
+/**
+ * Navigation routes for the application
+ */
+sealed class Screen(val route: String) {
+    object Home : Screen("home")
+    object AddBook : Screen("add_book")
+    object BookDetail : Screen("book_detail/{bookId}") {
+        fun createRoute(bookId: Long) = "book_detail/$bookId"
+    }
+    object Review : Screen("review/{bookId}") {
+        fun createRoute(bookId: Long) = "review/$bookId"
+    }
+}
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val currentRoute = currentRoute(navController) ?: "home"
+    val currentRoute = currentRoute(navController)
+
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(
-                currentRoute = currentRoute,
-                onItemSelected = { route ->
-                    if (route != currentRoute) {
-                        navController.navigate(route) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+            NavigationBar {
+                NavigationBarItem(
+                    icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
+                    label = { Text("Home") },
+                    selected = currentRoute == Screen.Home.route,
+                    onClick = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
                             launchSingleTop = true
                             restoreState = true
                         }
                     }
-                }
-            )
+                )
+            }
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "home",
+            startDestination = Screen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("home") {
-                HomeScreen(books = sampleBooks)
+            composable(Screen.Home.route) {
+                val viewModel: BookViewModel = hiltViewModel()
+                HomeScreen(
+                    viewModel = viewModel,
+                    onAddBook = { navController.navigate(Screen.AddBook.route) },
+                    onBookSelected = { bookId ->
+                        navController.navigate(Screen.Review.createRoute(bookId))
+                    }
+                )
             }
-            composable("details") {
-                BookDetailsScreen(book = sampleBooks.first())
+            
+            composable(Screen.AddBook.route) {
+                val viewModel: BookViewModel = hiltViewModel()
+                // TODO: Implement AddBookScreen
             }
-            composable("recommendations") {
-                RecommendationScreen(recommendedBooks = sampleBooks)
+            
+            composable(
+                route = Screen.BookDetail.route,
+                arguments = listOf(navArgument("bookId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val bookId = backStackEntry.arguments?.getLong("bookId") ?: return@composable
+                val bookViewModel: BookViewModel = hiltViewModel()
+                val reviewViewModel: ReviewViewModel = hiltViewModel()
+                // TODO: Implement BookDetailScreen
+            }
+
+            composable(
+                route = Screen.Review.route,
+                arguments = listOf(navArgument("bookId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val bookId = backStackEntry.arguments?.getLong("bookId") ?: return@composable
+                ReviewScreen(bookId = bookId)
             }
         }
     }
@@ -56,36 +102,3 @@ fun currentRoute(navController: NavHostController): String? {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     return navBackStackEntry?.destination?.route
 }
-
-@Composable
-fun BottomNavigationBar(
-    currentRoute: String,
-    onItemSelected: (String) -> Unit
-) {
-    NavigationBar {
-        NavigationBarItem(
-            selected = currentRoute == "home",
-            onClick = { onItemSelected("home") },
-            icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
-            label = { Text("Home") }
-        )
-        NavigationBarItem(
-            selected = currentRoute == "details",
-            onClick = { onItemSelected("details") },
-            icon = { Icon(Icons.Filled.Info, contentDescription = "Details") },
-            label = { Text("Details") }
-        )
-        NavigationBarItem(
-            selected = currentRoute == "recommendations",
-            onClick = { onItemSelected("recommendations") },
-            icon = { Icon(Icons.Filled.Star, contentDescription = "Recommendations") },
-            label = { Text("Recommend") }
-        )
-    }
-}
-
-val sampleBooks = listOf(
-    Book("1984", "George Orwell", 0.5f),
-    Book("Brave New World", "Aldous Huxley", 0.3f),
-    Book("Fahrenheit 451", "Ray Bradbury", 0.7f)
-)

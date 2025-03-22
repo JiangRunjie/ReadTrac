@@ -31,40 +31,4 @@ abstract class AppDatabase : RoomDatabase() {
      * Returns the ReviewDao to access review data
      */
     abstract fun reviewDao(): ReviewDao
-
-    companion object {
-        @Volatile
-        private var INSTANCE: AppDatabase? = null
-
-        /**
-         * Gets or creates the singleton database instance
-         * 
-         * @param context Application context
-         * @return The database instance
-         */
-        fun getInstance(context: Context): AppDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    "readtrac_database"
-                ).build()
-                INSTANCE = instance
-                instance
-            }
-        }
-        
-        /**
-         * Creates an in-memory version of the database for testing
-         * 
-         * @param context Application context
-         * @return An in-memory database instance
-         */
-        fun createInMemoryDatabase(context: Context): AppDatabase {
-            return Room.inMemoryDatabaseBuilder(
-                context.applicationContext,
-                AppDatabase::class.java
-            ).allowMainThreadQueries().build()
-        }
-    }
 }

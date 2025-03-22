@@ -3,6 +3,9 @@ package com.readtrac.readtrac.data.repository
 import com.readtrac.readtrac.data.dao.ReviewDao
 import com.readtrac.readtrac.data.model.ReviewEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Repository for accessing review data
@@ -12,14 +15,15 @@ import kotlinx.coroutines.flow.Flow
  * 
  * @property reviewDao The data access object for review operations
  */
-class ReviewRepository(private val reviewDao: ReviewDao) {
+@Singleton
+class ReviewRepository @Inject constructor(private val reviewDao: ReviewDao) : IReviewRepository {
     
     /**
      * Get all reviews as a flow of data
      * 
      * @return A flow emitting all reviews
      */
-    fun getAllReviews(): Flow<List<ReviewEntity>> = reviewDao.getAllReviews()
+    override fun getAllReviews(): Flow<List<ReviewEntity>> = reviewDao.getAllReviews()
     
     /**
      * Get all reviews for a specific book
@@ -27,7 +31,7 @@ class ReviewRepository(private val reviewDao: ReviewDao) {
      * @param bookId The ID of the book to get reviews for
      * @return Flow emitting reviews for the specified book
      */
-    fun getReviewsForBook(bookId: Long): Flow<List<ReviewEntity>> = 
+    override fun getReviewsForBook(bookId: Long): Flow<List<ReviewEntity>> = 
         reviewDao.getReviewsForBook(bookId)
     
     /**
@@ -36,7 +40,7 @@ class ReviewRepository(private val reviewDao: ReviewDao) {
      * @param id The ID of the review
      * @return The review with the given ID, or null if not found
      */
-    suspend fun getReviewById(id: Long): ReviewEntity? = reviewDao.getReviewById(id)
+    override suspend fun getReviewById(id: Long): ReviewEntity? = reviewDao.getReviewById(id)
     
     /**
      * Insert a new review into the database
@@ -44,21 +48,21 @@ class ReviewRepository(private val reviewDao: ReviewDao) {
      * @param review The review to insert
      * @return The ID of the newly inserted review
      */
-    suspend fun insertReview(review: ReviewEntity): Long = reviewDao.insertReview(review)
+    override suspend fun insertReview(review: ReviewEntity): Long = reviewDao.insertReview(review)
     
     /**
      * Update an existing review
      * 
      * @param review The review with updated information
      */
-    suspend fun updateReview(review: ReviewEntity) = reviewDao.updateReview(review)
+    override suspend fun updateReview(review: ReviewEntity) = reviewDao.updateReview(review)
     
     /**
      * Delete a review from the database
      * 
      * @param review The review to delete
      */
-    suspend fun deleteReview(review: ReviewEntity) = reviewDao.deleteReview(review)
+    override suspend fun deleteReview(review: ReviewEntity) = reviewDao.deleteReview(review)
     
     /**
      * Delete all reviews for a specific book
@@ -66,6 +70,16 @@ class ReviewRepository(private val reviewDao: ReviewDao) {
      * @param bookId The ID of the book to delete reviews for
      * @return The number of reviews deleted
      */
-    suspend fun deleteReviewsByBookId(bookId: Long): Int = 
+    override suspend fun deleteReviewsByBookId(bookId: Long): Int = 
         reviewDao.deleteReviewsByBookId(bookId)
+        
+    /**
+     * Get public reviews only
+     * 
+     * @return A flow of reviews marked as public
+     */
+    override fun getPublicReviews(): Flow<List<ReviewEntity>> = 
+        reviewDao.getAllReviews().map { reviews ->
+            reviews.filter { it.isPublic }
+        }
 }

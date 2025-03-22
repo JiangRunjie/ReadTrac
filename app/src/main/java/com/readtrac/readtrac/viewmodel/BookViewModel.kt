@@ -1,14 +1,15 @@
 package com.readtrac.readtrac.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.readtrac.readtrac.data.model.BookEntity
-import com.readtrac.readtrac.data.repository.BookRepository
+import com.readtrac.readtrac.data.repository.IBookRepository
 import com.readtrac.readtrac.ui.view.Book
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * ViewModel for book-related operations
@@ -18,7 +19,10 @@ import kotlinx.coroutines.launch
  *
  * @property repository The repository that provides access to book data
  */
-class BookViewModel(private val repository: BookRepository) : ViewModel() {
+@HiltViewModel
+class BookViewModel @Inject constructor(
+    private val repository: IBookRepository
+) : ViewModel() {
     
     /**
      * Get all books as a flow of UI model books
@@ -53,10 +57,7 @@ class BookViewModel(private val repository: BookRepository) : ViewModel() {
      */
     fun updateProgress(id: Long, progress: Float) {
         viewModelScope.launch {
-            val book = repository.getBookById(id)
-            book?.let {
-                repository.updateBook(it.copy(progress = progress))
-            }
+            repository.updateReadingProgress(id, progress)
         }
     }
     
@@ -94,24 +95,13 @@ class BookViewModel(private val repository: BookRepository) : ViewModel() {
      */
     private fun BookEntity.toUiModel(): Book {
         return Book(
+            id = this.id,
             title = this.title,
             author = this.author,
-            progress = this.progress
+            progress = this.progress,
+            rating = this.rating,
+            genre = this.genre,
+            notes = this.notes
         )
-    }
-    
-    /**
-     * Factory for creating BookViewModel instances
-     * 
-     * @property repository The repository to use for data operations
-     */
-    class Factory(private val repository: BookRepository) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(BookViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return BookViewModel(repository) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
     }
 }
