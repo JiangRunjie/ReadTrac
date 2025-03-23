@@ -6,14 +6,29 @@ import androidx.compose.foundation.lazy.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.readtrac.readtrac.ui.theme.ReadTracTheme
 import com.readtrac.readtrac.viewmodel.BookViewModel
 
+/**
+ * Home screen that displays a list of books the user is tracking
+ *
+ * This screen serves as the main entry point to the application. It displays
+ * a list of books that the user is currently tracking, along with their progress.
+ * Users can tap on a book to view its details or add a new book.
+ *
+ * @param viewModel The ViewModel providing the book data
+ * @param onAddBook Callback for when the user wants to add a new book
+ * @param onBookSelected Callback for when a book is selected
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -21,39 +36,62 @@ fun HomeScreen(
     onAddBook: () -> Unit = {},
     onBookSelected: (Long) -> Unit = {}
 ) {
+    // Collect the books flow as state
     val books by viewModel.books.collectAsState(initial = emptyList())
+
+    // Track loading state from ViewModel
+    val isLoading by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = { 
             TopAppBar(
                 title = { Text("ReadTrac Home") },
-                actions = {
-                    IconButton(onClick = onAddBook) {
-                        Icon(Icons.Filled.Add, contentDescription = "Add Book")
-                    }
-                }
             )
-        }
+        },
     ) { innerPadding ->
-        LazyColumn(
-            contentPadding = innerPadding,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(books) { book ->
-                BookCard(book, onClick = { onBookSelected(book.id) })
+        if (isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else if (books.isEmpty()) {
+            // Show empty state when no books are available
+            EmptyBookListState(onAddBook)
+        } else {
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    top = innerPadding.calculateTopPadding(),
+                    bottom = innerPadding.calculateBottomPadding() + 8.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(books, key = { it.id }) { book ->
+                    BookCard(book, onClick = { onBookSelected(book.id) })
+                }
             }
         }
     }
 }
 
+/**
+ * Card component displaying a book's information
+ *
+ * @param book The book to display
+ * @param onClick Callback for when the card is clicked
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookCard(book: Book, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
             .clickable(onClick = onClick),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier
@@ -62,28 +100,187 @@ fun BookCard(book: Book, onClick: () -> Unit) {
         ) {
             Text(
                 text = book.title,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = book.author,
-                style = MaterialTheme.typography.bodyMedium
+                text = "by ${book.author}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            
             if (book.genre != null) {
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = book.genre,
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
-            LinearProgressIndicator(
-                progress = book.progress,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            // Progress section with improved visual feedback
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                LinearProgressIndicator(
+                    progress = { book.progress },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(8.dp),
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "${(book.progress * 100).toInt()}%",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            
+            // Optional rating display
+            book.rating?.let { rating ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Rating: ",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    RatingBar(rating = rating)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Composable that displays a visual representation of a rating
+ *
+ * @param rating The rating value (0-5)
+ */
+@Composable
+fun RatingBar(rating: Float) {
+    Row {
+        repeat(5) { index ->
+            val starColor = if (index < rating) Color(0xFFFFC107) else Color.Gray
+            Icon(
+                imageVector = Icons.Default.Star,
+                contentDescription = null,
+                tint = starColor,
+                modifier = Modifier.size(16.dp)
             )
-            Text(
-                text = "${(book.progress * 100).toInt()}% complete",
-                style = MaterialTheme.typography.bodySmall
+        }
+    }
+}
+
+/**
+ * Composable that displays an empty state when no books are available
+ *
+ * @param onAddBook Callback for when the user wants to add a new book
+ */
+@Composable
+fun EmptyBookListState(onAddBook: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Menu,
+            contentDescription = null,
+            modifier = Modifier.size(80.dp),
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "No books yet",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Start tracking your reading by adding your first book",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(
+            onClick = onAddBook,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary
             )
+        ) {
+            Icon(Icons.Default.Add, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Add Your First Book")
+        }
+    }
+}
+
+/**
+ * Preview for the HomeScreen with some sample data
+ */
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    val sampleBooks = listOf(
+        Book(
+            id = 1,
+            title = "The Great Gatsby",
+            author = "F. Scott Fitzgerald",
+            progress = 0.75f,
+            genre = "Fiction",
+            rating = 4.5f
+        ),
+        Book(
+            id = 2,
+            title = "To Kill a Mockingbird",
+            author = "Harper Lee",
+            progress = 0.3f,
+            genre = "Classic"
+        ),
+        Book(
+            id = 3,
+            title = "1984",
+            author = "George Orwell",
+            progress = 0.9f,
+            rating = 5f
+        )
+    )
+
+    ReadTracTheme {
+        Surface {
+            BookListContent(books = sampleBooks)
+        }
+    }
+}
+
+/**
+ * Content of the book list screen extracted for preview purposes
+ */
+@Composable
+private fun BookListContent(books: List<Book>) {
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(books, key = { it.id }) { book ->
+            BookCard(book, onClick = {})
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EmptyStatePreview() {
+    ReadTracTheme {
+        Surface {
+            EmptyBookListState {}
         }
     }
 }
