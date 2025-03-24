@@ -72,8 +72,9 @@ fun AppNavigation() {
             }
             
             composable(Screen.AddBook.route) {
-                val viewModel: BookViewModel = hiltViewModel()
-                // TODO: Implement AddBookScreen
+                AddBookScreen(
+                    onBookAdded = { navController.popBackStack() }
+                )
             }
             
             composable(
