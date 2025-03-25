@@ -48,6 +48,13 @@ fun HomeScreen(
                 title = { Text("ReadTrac Home") },
             )
         },
+        floatingActionButton = {
+            if (books.isNotEmpty()) {
+                FloatingActionButton(onClick = onAddBook) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Book")
+                }
+            }
+        }
     ) { innerPadding ->
         if (isLoading) {
             Box(
