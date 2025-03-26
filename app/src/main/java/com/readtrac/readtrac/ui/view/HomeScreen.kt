@@ -1,6 +1,7 @@
 package com.readtrac.readtrac.ui.view
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.material.icons.Icons
@@ -10,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,6 +19,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.readtrac.readtrac.ui.theme.ReadTracTheme
 import com.readtrac.readtrac.viewmodel.BookViewModel
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.alpha
 
 /**
  * Home screen that displays a list of books the user is tracking
@@ -78,7 +86,11 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(books, key = { it.id }) { book ->
-                    BookCard(book, onClick = { onBookSelected(book.id) })
+                    BookCard(
+                        book,
+                        onClick = { onBookSelected(book.id) },
+                        onDelete = { viewModel.deleteBook(book.id) }
+                    )
                 }
             }
         }
@@ -90,75 +102,95 @@ fun HomeScreen(
  *
  * @param book The book to display
  * @param onClick Callback for when the card is clicked
+ * @param onDelete Callback for when the card is swiped left
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookCard(book: Book, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
+fun BookCard(book: Book, onClick: () -> Unit, onDelete: () -> Unit) {
+    val isDeleted = remember { mutableStateOf(false) }
+    val alpha by animateFloatAsState(
+        targetValue = if (isDeleted.value) 0f else 1f,
+        animationSpec = tween(durationMillis = 300),
+        finishedListener = {
+            if (isDeleted.value) onDelete()
+        }
+    )
+
+    if (!isDeleted.value) {
+        Card(
             modifier = Modifier
-                .padding(16.dp)
                 .fillMaxWidth()
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures { _, dragAmount ->
+                        if (dragAmount < -50) { // Swipe left
+                            isDeleted.value = true
+                        }
+                    }
+                }
+                .clickable(onClick = onClick)
+                .alpha(alpha),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            Text(
-                text = book.title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "by ${book.author}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            
-            if (book.genre != null) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = book.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = book.genre,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            // Progress section with improved visual feedback
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                LinearProgressIndicator(
-                    progress = { book.progress },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(8.dp),
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "${(book.progress * 100).toInt()}%",
+                    text = "by ${book.author}",
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-            }
-            
-            // Optional rating display
-            book.rating?.let { rating ->
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                
+                if (book.genre != null) {
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Rating: ",
-                        style = MaterialTheme.typography.bodySmall
+                        text = book.genre,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.secondary
                     )
-                    RatingBar(rating = rating)
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                // Progress section with improved visual feedback
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    LinearProgressIndicator(
+                        progress = { book.progress },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(8.dp),
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "${(book.progress * 100).toInt()}%",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                
+                // Optional rating display
+                book.rating?.let { rating ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Rating: ",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        RatingBar(rating = rating)
+                    }
                 }
             }
         }
@@ -277,7 +309,7 @@ private fun BookListContent(books: List<Book>) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(books, key = { it.id }) { book ->
-            BookCard(book, onClick = {})
+            BookCard(book, onClick = {}, onDelete = {})
         }
     }
 }
