@@ -7,12 +7,15 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.compose.*
 import com.readtrac.readtrac.ui.view.*
+import com.readtrac.readtrac.viewmodel.BookDetailViewModel
 import com.readtrac.readtrac.viewmodel.BookViewModel
 import com.readtrac.readtrac.viewmodel.ReviewViewModel
 
@@ -66,7 +69,7 @@ fun AppNavigation() {
                     viewModel = viewModel,
                     onAddBook = { navController.navigate(Screen.AddBook.route) },
                     onBookSelected = { bookId ->
-                        navController.navigate(Screen.Review.createRoute(bookId))
+                        navController.navigate(Screen.BookDetail.createRoute(bookId)) // Navigate to BookDetail screen
                     }
                 )
             }
@@ -82,9 +85,26 @@ fun AppNavigation() {
                 arguments = listOf(navArgument("bookId") { type = NavType.LongType })
             ) { backStackEntry ->
                 val bookId = backStackEntry.arguments?.getLong("bookId") ?: return@composable
-                val bookViewModel: BookViewModel = hiltViewModel()
-                val reviewViewModel: ReviewViewModel = hiltViewModel()
-                // TODO: Implement BookDetailScreen
+                val bookDetailViewModel: BookDetailViewModel = hiltViewModel()
+
+                // Fetch book details when the screen is displayed
+                LaunchedEffect(bookId) {
+                    bookDetailViewModel.fetchBookDetails(bookId)
+                }
+
+                val bookDetail by bookDetailViewModel.bookDetail.collectAsState()
+
+                bookDetail?.let { book ->
+                    BookDetailsScreen(
+                        book = book,
+                        onProgressUpdate = { progress ->
+                            bookDetailViewModel.updateProgress(bookId, progress)
+                        },
+                        onAddReview = { review ->
+                            // Handle adding a review (to be implemented)
+                        }
+                    )
+                }
             }
 
             composable(
