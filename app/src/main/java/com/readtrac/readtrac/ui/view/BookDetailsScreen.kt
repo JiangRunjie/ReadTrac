@@ -57,7 +57,10 @@ fun BookDetailsScreen(
 
             // User Reviews
             Text(text = "User Reviews:", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Button(onClick = { onAddReview("New Review") }, modifier = Modifier.padding(vertical = 8.dp)) {
+            Button(
+                onClick = { onAddReview(book.id.toString()) }, // Pass the book ID to navigate to the review screen
+                modifier = Modifier.padding(vertical = 8.dp)
+            ) {
                 Text("Add Review")
             }
 

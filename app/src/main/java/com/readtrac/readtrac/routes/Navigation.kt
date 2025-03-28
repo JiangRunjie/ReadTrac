@@ -100,8 +100,7 @@ fun AppNavigation() {
                         onProgressUpdate = { progress ->
                             bookDetailViewModel.updateProgress(bookId, progress)
                         },
-                        onAddReview = { review ->
-                            // Handle adding a review (to be implemented)
+                        onAddReview = { review -> navController.navigate(Screen.Review.createRoute(bookId))
                         }
                     )
                 }
