@@ -1,6 +1,8 @@
 package com.readtrac.readtrac.ui.view
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
@@ -14,10 +16,23 @@ import androidx.compose.ui.unit.dp
 fun BookDetailsScreen(
     book: Book,
     onProgressUpdate: (Float) -> Unit,
-    onAddReview: (String) -> Unit
+    onAddReview: (String) -> Unit,
+    onBackPressed: () -> Unit = {} // Added with default value for backward compatibility
 ) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Book Details") }) }
+        topBar = { 
+            TopAppBar(
+                title = { Text("Book Details") },
+                navigationIcon = {
+                    IconButton(onClick = onBackPressed) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Navigate back"
+                        )
+                    }
+                }
+            )
+        }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding).padding(16.dp)) {
             // Title and Author

@@ -1,6 +1,8 @@
 package com.readtrac.readtrac.ui.view
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -26,7 +28,17 @@ fun AddBookScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Add a New Book") })
+            TopAppBar(
+                title = { Text("Add a New Book") },
+                navigationIcon = {
+                    IconButton(onClick = onBookAdded) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Navigate back"
+                        )
+                    }
+                }
+            )
         },
         content = { innerPadding ->
             Column(
