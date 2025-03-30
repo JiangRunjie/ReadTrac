@@ -1,4 +1,4 @@
-package com.readtrac.readtrac.ui.view
+package com.readtrac.readtrac.data.entity
 
 /**
  * UI model class for Book

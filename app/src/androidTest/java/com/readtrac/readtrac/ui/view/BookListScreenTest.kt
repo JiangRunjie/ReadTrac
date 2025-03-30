@@ -2,6 +2,7 @@ package com.readtrac.readtrac.ui.view
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import com.readtrac.readtrac.data.entity.Book
 import com.readtrac.readtrac.data.repository.IBookRepository
 import com.readtrac.readtrac.ui.theme.ReadTracTheme
 import com.readtrac.readtrac.viewmodel.BookViewModel

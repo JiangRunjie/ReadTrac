@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.readtrac.readtrac.data.entity.Book
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

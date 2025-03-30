@@ -7,7 +7,7 @@ import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import com.readtrac.readtrac.data.repository.IBookRepository
 import com.readtrac.readtrac.ui.theme.ReadTracTheme
-import com.readtrac.readtrac.ui.view.Book
+import com.readtrac.readtrac.data.entity.Book
 import com.readtrac.readtrac.viewmodel.BookDetailViewModel
 import com.readtrac.readtrac.viewmodel.BookViewModel
 import com.readtrac.readtrac.viewmodel.ReviewViewModel

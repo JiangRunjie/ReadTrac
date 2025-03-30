@@ -3,7 +3,7 @@ package com.readtrac.readtrac.viewmodel
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.readtrac.readtrac.data.model.BookEntity
 import com.readtrac.readtrac.data.repository.IBookRepository
-import com.readtrac.readtrac.ui.view.Book
+import com.readtrac.readtrac.data.entity.Book
 import com.readtrac.readtrac.util.anyObject
 import com.readtrac.readtrac.util.whenever
 import kotlinx.coroutines.Dispatchers

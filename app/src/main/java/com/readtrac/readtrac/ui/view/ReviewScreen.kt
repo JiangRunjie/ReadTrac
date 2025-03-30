@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.readtrac.readtrac.data.entity.Review
 import com.readtrac.readtrac.viewmodel.ReviewViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.readtrac.readtrac.data.model.ReviewEntity
 import com.readtrac.readtrac.data.repository.IReviewRepository
-import com.readtrac.readtrac.ui.view.Review
+import com.readtrac.readtrac.data.entity.Review
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

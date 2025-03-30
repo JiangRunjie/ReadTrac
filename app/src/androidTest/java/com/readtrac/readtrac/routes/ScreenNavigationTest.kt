@@ -5,7 +5,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import com.readtrac.readtrac.MainActivity
 import com.readtrac.readtrac.data.repository.BookRepository
 import com.readtrac.readtrac.data.repository.IBookRepository
-import com.readtrac.readtrac.ui.view.Book
+import com.readtrac.readtrac.data.entity.Book
 import com.readtrac.readtrac.viewmodel.BookDetailViewModel
 import com.readtrac.readtrac.viewmodel.BookViewModel
 import dagger.hilt.android.testing.HiltAndroidRule
