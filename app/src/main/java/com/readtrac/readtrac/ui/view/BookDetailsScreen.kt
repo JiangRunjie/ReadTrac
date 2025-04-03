@@ -93,7 +93,7 @@ fun BookDetailsScreen(
                     onClick = { onAddReview(book.id.toString()) }, // Pass the book ID to navigate to the review screen
                     modifier = Modifier.padding(vertical = 8.dp)
                 ) {
-                    Text("Add Review")
+                    Text("Edit Review")
                 }
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -106,7 +106,10 @@ fun BookDetailsScreen(
                 }
             } else {
                 items(reviews) { review ->
-                    ReviewCard(review)
+                    ReviewCard(
+                        review = review,
+                        showDeleteButton = false
+                    )
                 }
             }
         }

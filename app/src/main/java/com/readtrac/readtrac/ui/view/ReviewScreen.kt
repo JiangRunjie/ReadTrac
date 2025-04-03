@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,6 +39,10 @@ fun ReviewScreen(
     var reviewText by remember { mutableStateOf("") }
     var isPublicReview by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope() // Create a coroutine scope
+    
+    // State for delete confirmation dialog
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    var reviewToDelete by remember { mutableStateOf<Review?>(null) }
 
     Scaffold(
         topBar = {
@@ -79,7 +84,13 @@ fun ReviewScreen(
                 }
             } else {
                 items(reviews) { review ->
-                    ReviewCard(review)
+                    ReviewCard(
+                        review = review,
+                        onDeleteClick = { 
+                            reviewToDelete = review
+                            showDeleteConfirmDialog = true
+                        }
+                    )
                 }
             }
         }
@@ -135,10 +146,51 @@ fun ReviewScreen(
             }
         )
     }
+    
+    // Delete Confirmation Dialog
+    if (showDeleteConfirmDialog && reviewToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { 
+                showDeleteConfirmDialog = false 
+                reviewToDelete = null
+            },
+            title = { Text("Delete Review") },
+            text = { Text("Are you sure you want to delete this review?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        reviewToDelete?.let { review ->
+                            coroutineScope.launch {
+                                viewModel.deleteReview(review.id)
+                                showDeleteConfirmDialog = false
+                                reviewToDelete = null
+                            }
+                        }
+                    }
+                ) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { 
+                        showDeleteConfirmDialog = false
+                        reviewToDelete = null
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
 
 @Composable
-fun ReviewCard(review: Review) {
+fun ReviewCard(
+    review: Review,
+    onDeleteClick: () -> Unit = {},
+    showDeleteButton: Boolean = true
+) {
     val dateFormatter = remember { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()) }
     
     Card(
@@ -176,6 +228,27 @@ fun ReviewCard(review: Review) {
                 maxLines = 5,
                 overflow = TextOverflow.Ellipsis
             )
+            
+            // Only show delete button if showDeleteButton is true
+            if (showDeleteButton) {
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    IconButton(
+                        onClick = onDeleteClick,
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete Review",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            }
         }
     }
 }
