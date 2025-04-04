@@ -33,6 +33,22 @@ class BookDetailViewModel @Inject constructor(
             fetchBookDetails(bookId) // Refresh details
         }
     }
+    
+    /**
+     * Update the rating for a book
+     *
+     * @param bookId The ID of the book to update
+     * @param rating The new rating value (0-5 stars)
+     */
+    fun updateRating(bookId: Long, rating: Float) {
+        viewModelScope.launch {
+            val book = repository.getBookById(bookId)
+            book?.let {
+                repository.updateBook(it.copy(rating = rating))
+                fetchBookDetails(bookId) // Refresh details
+            }
+        }
+    }
 
     private fun BookEntity.toUiModel(): Book {
         return Book(

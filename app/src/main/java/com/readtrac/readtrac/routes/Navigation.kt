@@ -164,6 +164,9 @@ fun AppNavigation() {
                         onProgressUpdate = { progress ->
                             bookDetailViewModel.updateProgress(bookId, progress)
                         },
+                        onRatingChanged = { rating ->
+                            bookDetailViewModel.updateRating(bookId, rating)
+                        },
                         onAddReview = { 
                             // Navigate to Review screen with the current book ID
                             navController.navigate(Screen.Review.createRoute(bookId))
