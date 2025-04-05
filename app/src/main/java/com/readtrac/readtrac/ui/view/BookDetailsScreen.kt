@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.readtrac.readtrac.data.entity.Book
+import com.readtrac.readtrac.data.entity.Review
 import com.readtrac.readtrac.viewmodel.ReviewViewModel
 import com.readtrac.readtrac.viewmodel.BookDetailViewModel
 import kotlinx.coroutines.launch
@@ -91,6 +92,10 @@ fun BookDetailsScreen(
     var reviewText by remember { mutableStateOf("") }
     var isPublicReview by remember { mutableStateOf(false) }
     var reviewRating by remember(book.rating) { mutableFloatStateOf(book.rating ?: 0f) }
+    
+    // State for delete confirmation dialog
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    var reviewToDelete by remember { mutableStateOf<Review?>(null) }
     
     // Coroutine scope for launching suspend functions
     val coroutineScope = rememberCoroutineScope()
@@ -200,6 +205,11 @@ fun BookDetailsScreen(
                 items(reviews) { review ->
                     ReviewCard(
                         review = review,
+                        showDeleteButton = true,
+                        onDeleteClick = {
+                            reviewToDelete = review
+                            showDeleteConfirmDialog = true
+                        }
                     )
                 }
             }
@@ -270,6 +280,43 @@ fun BookDetailsScreen(
                 },
                 dismissButton = {
                     TextButton(onClick = { showAddReviewDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+        
+        // Delete Confirmation Dialog
+        if (showDeleteConfirmDialog && reviewToDelete != null) {
+            AlertDialog(
+                onDismissRequest = { 
+                    showDeleteConfirmDialog = false 
+                    reviewToDelete = null
+                },
+                title = { Text("Delete Review") },
+                text = { Text("Are you sure you want to delete this review?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            reviewToDelete?.let { review ->
+                                coroutineScope.launch {
+                                    reviewViewModel.deleteReview(review.id)
+                                    showDeleteConfirmDialog = false
+                                    reviewToDelete = null
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { 
+                            showDeleteConfirmDialog = false
+                            reviewToDelete = null
+                        }
+                    ) {
                         Text("Cancel")
                     }
                 }
