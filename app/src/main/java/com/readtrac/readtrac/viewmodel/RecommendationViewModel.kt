@@ -3,6 +3,7 @@ package com.readtrac.readtrac.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.readtrac.readtrac.data.entity.Book
+import com.readtrac.readtrac.data.model.BookEntity
 import com.readtrac.readtrac.data.recommendation.RecommendationEngine
 import com.readtrac.readtrac.data.repository.IBookRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,12 +37,17 @@ class RecommendationViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
     
+    // State to track if we're using external recommendations
+    private val _isExternalSource = MutableStateFlow(false)
+    val isExternalSource: StateFlow<Boolean> = _isExternalSource
+    
     /**
      * Load book recommendations
      *
      * @param limit Maximum number of recommendations to fetch
+     * @param useNetworkOnly If true, only fetch from network and ignore local data
      */
-    fun loadRecommendations(limit: Int = 5) {
+    fun loadRecommendations(limit: Int = 5, useNetworkOnly: Boolean = false) {
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
@@ -52,7 +58,12 @@ class RecommendationViewModel @Inject constructor(
                     _isLoading.value = false
                 }
                 .collect { bookEntities ->
-                    _recommendedBooks.value = recommendationEngine.mapToBookEntities(bookEntities)
+                    // Map the BookEntity objects to Book objects
+                    val books = bookEntities.map { mapToBook(it) }
+                    
+                    // Update states
+                    _recommendedBooks.value = books
+                    _isExternalSource.value = bookEntities.any { it.isExternal }
                     _isLoading.value = false
                 }
         }
@@ -62,6 +73,21 @@ class RecommendationViewModel @Inject constructor(
      * Refresh book recommendations
      */
     fun refreshRecommendations() {
-        loadRecommendations()
+        loadRecommendations(useNetworkOnly = true)
+    }
+    
+    /**
+     * Map a BookEntity to a Book
+     */
+    private fun mapToBook(bookEntity: BookEntity): Book {
+        return Book(
+            id = bookEntity.id,
+            title = bookEntity.title,
+            author = bookEntity.author,
+            rating = bookEntity.rating,
+            genre = bookEntity.genre,
+            coverUrl = bookEntity.coverUrl,
+            isExternal = bookEntity.isExternal
+        )
     }
 }

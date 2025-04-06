@@ -2,11 +2,18 @@ package com.readtrac.readtrac.data.repository
 
 import com.readtrac.readtrac.data.dao.BookDao
 import com.readtrac.readtrac.data.model.BookEntity
+import com.readtrac.readtrac.data.network.BookApiMapper
+import com.readtrac.readtrac.data.network.BookApiService
+import com.readtrac.readtrac.data.network.NetworkClient
+import com.readtrac.readtrac.data.network.NetworkResult
 import com.readtrac.readtrac.data.recommendation.RecommendationEngine
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,11 +25,15 @@ import javax.inject.Singleton
  * 
  * @property bookDao The data access object for book operations
  * @property recommendationEngine Engine for generating book recommendations
+ * @property bookApiService Service for accessing external book API
+ * @property networkClient Client for handling network requests
  */
 @Singleton
 class BookRepository @Inject constructor(
     private val bookDao: BookDao,
-    private val recommendationEngine: RecommendationEngine
+    private val recommendationEngine: RecommendationEngine,
+    private val bookApiService: BookApiService,
+    private val networkClient: NetworkClient
 ) : IBookRepository {
     
     /**
@@ -114,22 +125,115 @@ class BookRepository @Inject constructor(
     
     /**
      * Get recommended books based on the user's reading history
+     * Enhanced to fetch recommendations from external API when available
      *
      * @param limit Maximum number of recommendations to return
      * @return A flow of recommended books
      */
     override fun getRecommendedBooks(limit: Int): Flow<List<BookEntity>> = flow {
-        val allBooks = bookDao.getAllBooks().first()
+        // First, try to get user preferences from local database
+        val userBooks = bookDao.getAllBooks().first()
         
-        // For demonstration purposes, we'll use the same book list as both
-        // the user's books and the available books.
-        // In a real app, this would connect to a larger catalog API
-        val recommendations = recommendationEngine.getRecommendations(
-            userBooks = allBooks,
-            availableBooks = allBooks,
-            limit = limit
-        )
-        
-        emit(recommendations)
+        // If we have books in the local database, use them to determine genres for API recommendations
+        if (userBooks.isNotEmpty()) {
+            // Extract most common genres from user's books
+            val genres = userBooks
+                .mapNotNull { it.genre }
+                .groupBy { it }
+                .maxByOrNull { it.value.size }
+                ?.key
+                
+            // If we have a genre, try to get recommendations from API
+            if (!genres.isNullOrEmpty()) {
+                try {
+                    // Use external API to fetch recommendations based on genre
+                    val externalRecommendationsFlow = networkClient.executeApiCall {
+                        bookApiService.getRecommendations("subject:$genres", limit)
+                    }
+                    
+                    // Process the API response
+                    externalRecommendationsFlow.collect { result ->
+                        when (result) {
+                            is NetworkResult.Success -> {
+                                // Map API response to BookEntity objects
+                                val externalBooks = BookApiMapper.mapToBookEntities(result.data.items)
+                                emit(externalBooks)
+                            }
+                            is NetworkResult.Error -> {
+                                // On error, fall back to local recommendations
+                                val localRecommendations = recommendationEngine.getRecommendations(
+                                    userBooks = userBooks,
+                                    availableBooks = userBooks,
+                                    limit = limit
+                                )
+                                emit(localRecommendations)
+                            }
+                            is NetworkResult.Loading -> {
+                                // Do nothing while loading - we'll emit when we have data
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Fall back to local recommendations on any error
+                    val localRecommendations = recommendationEngine.getRecommendations(
+                        userBooks = userBooks,
+                        availableBooks = userBooks,
+                        limit = limit
+                    )
+                    emit(localRecommendations)
+                }
+            } else {
+                // No genres, use local recommendations
+                val localRecommendations = recommendationEngine.getRecommendations(
+                    userBooks = userBooks,
+                    availableBooks = userBooks,
+                    limit = limit
+                )
+                emit(localRecommendations)
+            }
+        } else {
+            // For new users with no books, get popular recommendations
+            try {
+                val defaultRecommendationsFlow = networkClient.executeApiCall {
+                    bookApiService.getRecommendations("subject:fiction", limit)
+                }
+                
+                defaultRecommendationsFlow.collect { result ->
+                    when (result) {
+                        is NetworkResult.Success -> {
+                            // Map API response to BookEntity objects
+                            val externalBooks = BookApiMapper.mapToBookEntities(result.data.items)
+                            emit(externalBooks)
+                        }
+                        is NetworkResult.Error, is NetworkResult.Loading -> {
+                            // For new users, if API fails, just emit empty list
+                            emit(emptyList())
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                emit(emptyList())
+            }
+        }
+    }
+    
+    /**
+     * Search for books in the external API
+     *
+     * @param query The search query string
+     * @param limit Maximum number of results to return
+     * @return A flow of BookEntity objects matching the search query
+     */
+    override fun searchExternalBooks(query: String, limit: Int): Flow<List<BookEntity>> {
+        return networkClient.executeApiCall {
+            bookApiService.searchBooks(query, limit)
+        }.map { result ->
+            when (result) {
+                is NetworkResult.Success -> BookApiMapper.mapToBookEntities(result.data.items)
+                else -> emptyList()
+            }
+        }.catch {
+            emit(emptyList())
+        }
     }
 }

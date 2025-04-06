@@ -59,6 +59,9 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     
+    // Coil for image loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    
     // KSP processing for Room
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.android.compiler)

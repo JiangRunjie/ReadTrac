@@ -13,6 +13,8 @@ package com.readtrac.readtrac.data.entity
  * @property rating Optional user rating (0-5 stars)
  * @property genre Optional genre of the book
  * @property notes Optional user notes about the book
+ * @property coverUrl Optional URL to the book cover image
+ * @property isExternal Flag indicating if this book comes from an external API
  */
 data class Book(
     val id: Long = 0,
@@ -21,5 +23,7 @@ data class Book(
     val progress: Float = 0f,
     val rating: Float? = null,
     val genre: String? = null,
-    val notes: String? = null
+    val notes: String? = null,
+    val coverUrl: String? = null,
+    val isExternal: Boolean = false
 )

@@ -79,4 +79,13 @@ interface IBookRepository {
      * @return A flow of recommended books
      */
     fun getRecommendedBooks(limit: Int = 5): Flow<List<BookEntity>>
+
+    /**
+     * Search for books in external API
+     * 
+     * @param query The search query string
+     * @param limit Maximum number of results to return
+     * @return A flow of books matching the query from external API
+     */
+    fun searchExternalBooks(query: String, limit: Int = 10): Flow<List<BookEntity>>
 }

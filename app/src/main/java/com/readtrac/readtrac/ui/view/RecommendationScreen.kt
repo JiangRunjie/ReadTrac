@@ -3,6 +3,7 @@ package com.readtrac.readtrac.ui.view
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
@@ -13,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
@@ -20,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.readtrac.readtrac.data.entity.Book
 import com.readtrac.readtrac.viewmodel.RecommendationViewModel
 
@@ -34,6 +37,7 @@ fun RecommendationScreen(
     val recommendedBooks by viewModel.recommendedBooks.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val isExternalSource by viewModel.isExternalSource.collectAsState()
 
     // Load recommendations when the screen is first displayed
     LaunchedEffect(Unit) {
@@ -46,7 +50,7 @@ fun RecommendationScreen(
                 title = { Text("Book Recommendations") },
                 navigationIcon = {
                     IconButton(onClick = onBackPressed) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -120,7 +124,10 @@ fun RecommendationScreen(
                     ) {
                         item {
                             Text(
-                                text = "Based on your reading history",
+                                text = if (isExternalSource) 
+                                    "Books we think you'll enjoy" 
+                                else 
+                                    "Based on your reading history",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.padding(bottom = 8.dp)
@@ -156,11 +163,23 @@ fun RecommendationCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Book cover image
+            book.coverUrl?.let { url ->
+                AsyncImage(
+                    model = url,
+                    contentDescription = "Book cover for ${book.title}",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(width = 80.dp, height = 120.dp)
+                        .clip(MaterialTheme.shapes.small)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+            }
+            
             // Book info
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 16.dp)
             ) {
                 Text(
                     text = book.title,
@@ -206,6 +225,23 @@ fun RecommendationCard(
                                 modifier = Modifier.size(16.dp)
                             )
                         }
+                    }
+                }
+                
+                // Display external badge if the book is from an external source
+                if (book.isExternal) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Surface(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = MaterialTheme.shapes.small,
+                        modifier = Modifier.padding(top = 4.dp)
+                    ) {
+                        Text(
+                            text = "External",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                        )
                     }
                 }
             }

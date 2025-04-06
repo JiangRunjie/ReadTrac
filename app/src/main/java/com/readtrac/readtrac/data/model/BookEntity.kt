@@ -18,6 +18,10 @@ import java.util.Date
  * @property dateAdded Date when the book was added to the reading list
  * @property summary Optional summary of the book
  * @property notes Optional notes about the book
+ * @property isbn ISBN identifier for the book (optional)
+ * @property coverUrl URL to the book cover image (optional)
+ * @property description More detailed description of the book (optional)
+ * @property isExternal Flag to indicate if the book came from an external API
  */
 @Entity(tableName = "books")
 data class BookEntity(
@@ -32,5 +36,9 @@ data class BookEntity(
     val pageCount: Int? = null,
     val dateAdded: Long = System.currentTimeMillis(),
     val summary: String? = null,
-    val notes: String? = null
+    val notes: String? = null,
+    val isbn: String? = null,
+    val coverUrl: String? = null,
+    val description: String? = null,
+    val isExternal: Boolean = false
 )
