@@ -71,4 +71,12 @@ interface IBookRepository {
      * @return true if the update was successful, false otherwise
      */
     suspend fun updateReadingProgress(bookId: Long, progress: Float): Boolean
+    
+    /**
+     * Get recommended books based on the user's reading history
+     *
+     * @param limit Maximum number of recommendations to return
+     * @return A flow of recommended books
+     */
+    fun getRecommendedBooks(limit: Int = 5): Flow<List<BookEntity>>
 }

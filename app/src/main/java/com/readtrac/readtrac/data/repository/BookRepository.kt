@@ -2,7 +2,9 @@ package com.readtrac.readtrac.data.repository
 
 import com.readtrac.readtrac.data.dao.BookDao
 import com.readtrac.readtrac.data.model.BookEntity
+import com.readtrac.readtrac.data.recommendation.RecommendationEngine
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -15,9 +17,13 @@ import javax.inject.Singleton
  * for the ViewModel to interact with book data
  * 
  * @property bookDao The data access object for book operations
+ * @property recommendationEngine Engine for generating book recommendations
  */
 @Singleton
-class BookRepository @Inject constructor(private val bookDao: BookDao) : IBookRepository {
+class BookRepository @Inject constructor(
+    private val bookDao: BookDao,
+    private val recommendationEngine: RecommendationEngine
+) : IBookRepository {
     
     /**
      * Get all books as a flow of data
@@ -104,5 +110,26 @@ class BookRepository @Inject constructor(private val bookDao: BookDao) : IBookRe
         // Update the book
         bookDao.updateBook(updatedBook)
         return true
+    }
+    
+    /**
+     * Get recommended books based on the user's reading history
+     *
+     * @param limit Maximum number of recommendations to return
+     * @return A flow of recommended books
+     */
+    override fun getRecommendedBooks(limit: Int): Flow<List<BookEntity>> = flow {
+        val allBooks = bookDao.getAllBooks().first()
+        
+        // For demonstration purposes, we'll use the same book list as both
+        // the user's books and the available books.
+        // In a real app, this would connect to a larger catalog API
+        val recommendations = recommendationEngine.getRecommendations(
+            userBooks = allBooks,
+            availableBooks = allBooks,
+            limit = limit
+        )
+        
+        emit(recommendations)
     }
 }

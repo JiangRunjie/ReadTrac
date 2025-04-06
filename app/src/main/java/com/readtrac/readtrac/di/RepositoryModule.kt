@@ -2,6 +2,7 @@ package com.readtrac.readtrac.di
 
 import com.readtrac.readtrac.data.dao.BookDao
 import com.readtrac.readtrac.data.dao.ReviewDao
+import com.readtrac.readtrac.data.recommendation.RecommendationEngine
 import com.readtrac.readtrac.data.repository.BookRepository
 import com.readtrac.readtrac.data.repository.IBookRepository
 import com.readtrac.readtrac.data.repository.IReviewRepository
@@ -26,12 +27,16 @@ object RepositoryModule {
      * Provides the book repository implementation
      * 
      * @param bookDao The data access object for books
+     * @param recommendationEngine Engine for generating book recommendations
      * @return An implementation of IBookRepository
      */
     @Provides
     @Singleton
-    fun provideBookRepository(bookDao: BookDao): IBookRepository {
-        return BookRepository(bookDao)
+    fun provideBookRepository(
+        bookDao: BookDao, 
+        recommendationEngine: RecommendationEngine
+    ): IBookRepository {
+        return BookRepository(bookDao, recommendationEngine)
     }
     
     /**

@@ -9,9 +9,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -23,6 +25,7 @@ import androidx.navigation.compose.*
 import com.readtrac.readtrac.ui.view.*
 import com.readtrac.readtrac.viewmodel.BookDetailViewModel
 import com.readtrac.readtrac.viewmodel.BookViewModel
+import com.readtrac.readtrac.viewmodel.RecommendationViewModel
 import com.readtrac.readtrac.viewmodel.ReviewViewModel
 
 /**
@@ -33,6 +36,7 @@ import com.readtrac.readtrac.viewmodel.ReviewViewModel
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object AddBook : Screen("add_book")
+    object Recommendations : Screen("recommendations")
     
     /**
      * Book detail screen that takes a book ID parameter
@@ -94,6 +98,28 @@ fun AppNavigation() {
                             // reselecting the same item
                             launchSingleTop = true
                             // Restore state when reselecting a previously selected item
+                            restoreState = true
+                        }
+                    }
+                )
+                
+                // Recommendations navigation item
+                NavigationBarItem(
+                    icon = { 
+                        if (currentRoute == Screen.Recommendations.route) {
+                            Icon(Icons.Default.ThumbUp, contentDescription = "Recommendations")
+                        } else {
+                            Icon(Icons.Outlined.ThumbUp, contentDescription = "Recommendations")
+                        }
+                    },
+                    label = { Text("For You") },
+                    selected = currentRoute == Screen.Recommendations.route,
+                    onClick = {
+                        navController.navigate(Screen.Recommendations.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
                             restoreState = true
                         }
                     }
@@ -189,6 +215,21 @@ fun AppNavigation() {
                     bookId = bookId,
                     onReviewSubmitted = {
                         // Return to the book detail screen after submitting a review
+                        navController.popBackStack()
+                    }
+                )
+            }
+            
+            // Recommendations screen destination
+            composable(Screen.Recommendations.route) {
+                val viewModel: RecommendationViewModel = hiltViewModel()
+                RecommendationScreen(
+                    viewModel = viewModel,
+                    onBookSelected = { bookId ->
+                        // Navigate to BookDetail screen with the selected book ID
+                        navController.navigate(Screen.BookDetail.createRoute(bookId))
+                    },
+                    onBackPressed = {
                         navController.popBackStack()
                     }
                 )
