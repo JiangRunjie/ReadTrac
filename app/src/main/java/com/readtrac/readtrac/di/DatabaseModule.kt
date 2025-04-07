@@ -35,7 +35,10 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "readtrac_database"
-        ).build()
+        )
+            // Add the migration from version 1 to version 2
+            .addMigrations(AppDatabase.MIGRATION_1_2)
+            .build()
     }
 
     /**
