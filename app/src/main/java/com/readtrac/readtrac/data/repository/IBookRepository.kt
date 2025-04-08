@@ -73,12 +73,13 @@ interface IBookRepository {
     suspend fun updateReadingProgress(bookId: Long, progress: Float): Boolean
     
     /**
-     * Get recommended books based on the user's reading history
+     * Get recommended books based on the user's reading history or a specific category
      *
      * @param limit Maximum number of recommendations to return
+     * @param category Optional specific category to get recommendations for
      * @return A flow of recommended books
      */
-    fun getRecommendedBooks(limit: Int = 5): Flow<List<BookEntity>>
+    fun getRecommendedBooks(limit: Int = 5, category: String? = null): Flow<List<BookEntity>>
 
     /**
      * Search for books in external API

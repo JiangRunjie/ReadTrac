@@ -124,66 +124,56 @@ class BookRepository @Inject constructor(
     }
     
     /**
-     * Get recommended books based on the user's reading history
+     * Get recommended books based on the user's reading history or a specific category
      * Enhanced to fetch recommendations from external API when available
      *
      * @param limit Maximum number of recommendations to return
+     * @param category Optional specific category to get recommendations for
      * @return A flow of recommended books
      */
-    override fun getRecommendedBooks(limit: Int): Flow<List<BookEntity>> = flow {
+    override fun getRecommendedBooks(limit: Int, category: String?): Flow<List<BookEntity>> = flow {
         // First, try to get user preferences from local database
         val userBooks = bookDao.getAllBooks().first()
         
-        // If we have books in the local database, use them to determine genres for API recommendations
-        if (userBooks.isNotEmpty()) {
-            // Extract most common genres from user's books
-            val genres = userBooks
-                .mapNotNull { it.genre }
-                .groupBy { it }
-                .maxByOrNull { it.value.size }
-                ?.key
+        // If we have a specific category, use it directly
+        val genreToUse = category ?: userBooks
+            .mapNotNull { it.genre }
+            .groupBy { it }
+            .maxByOrNull { it.value.size }
+            ?.key
+        
+        // Try to get recommendations from API
+        if (!genreToUse.isNullOrEmpty()) {
+            try {
+                // Use external API to fetch recommendations based on genre
+                val externalRecommendationsFlow = networkClient.executeApiCall {
+                    bookApiService.getRecommendations("subject:$genreToUse", limit)
+                }
                 
-            // If we have a genre, try to get recommendations from API
-            if (!genres.isNullOrEmpty()) {
-                try {
-                    // Use external API to fetch recommendations based on genre
-                    val externalRecommendationsFlow = networkClient.executeApiCall {
-                        bookApiService.getRecommendations("subject:$genres", limit)
-                    }
-                    
-                    // Process the API response
-                    externalRecommendationsFlow.collect { result ->
-                        when (result) {
-                            is NetworkResult.Success -> {
-                                // Map API response to BookEntity objects
-                                val externalBooks = BookApiMapper.mapToBookEntities(result.data.items)
-                                emit(externalBooks)
-                            }
-                            is NetworkResult.Error -> {
-                                // On error, fall back to local recommendations
-                                val localRecommendations = recommendationEngine.getRecommendations(
-                                    userBooks = userBooks,
-                                    availableBooks = userBooks,
-                                    limit = limit
-                                )
-                                emit(localRecommendations)
-                            }
-                            is NetworkResult.Loading -> {
-                                // Do nothing while loading - we'll emit when we have data
-                            }
+                // Process the API response
+                externalRecommendationsFlow.collect { result ->
+                    when (result) {
+                        is NetworkResult.Success -> {
+                            // Map API response to BookEntity objects
+                            val externalBooks = BookApiMapper.mapToBookEntities(result.data.items)
+                            emit(externalBooks)
+                        }
+                        is NetworkResult.Error -> {
+                            // On error, fall back to local recommendations
+                            val localRecommendations = recommendationEngine.getRecommendations(
+                                userBooks = userBooks,
+                                availableBooks = userBooks,
+                                limit = limit
+                            )
+                            emit(localRecommendations)
+                        }
+                        is NetworkResult.Loading -> {
+                            // Do nothing while loading - we'll emit when we have data
                         }
                     }
-                } catch (e: Exception) {
-                    // Fall back to local recommendations on any error
-                    val localRecommendations = recommendationEngine.getRecommendations(
-                        userBooks = userBooks,
-                        availableBooks = userBooks,
-                        limit = limit
-                    )
-                    emit(localRecommendations)
                 }
-            } else {
-                // No genres, use local recommendations
+            } catch (e: Exception) {
+                // Fall back to local recommendations on any error
                 val localRecommendations = recommendationEngine.getRecommendations(
                     userBooks = userBooks,
                     availableBooks = userBooks,
@@ -192,7 +182,7 @@ class BookRepository @Inject constructor(
                 emit(localRecommendations)
             }
         } else {
-            // For new users with no books, get popular recommendations
+            // No genre specified, use "fiction" as default for new users or empty preference
             try {
                 val defaultRecommendationsFlow = networkClient.executeApiCall {
                     bookApiService.getRecommendations("subject:fiction", limit)

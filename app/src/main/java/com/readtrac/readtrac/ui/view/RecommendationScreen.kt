@@ -1,7 +1,9 @@
 package com.readtrac.readtrac.ui.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
@@ -37,7 +39,6 @@ fun RecommendationScreen(
     val recommendedBooks by viewModel.recommendedBooks.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
-    val isExternalSource by viewModel.isExternalSource.collectAsState()
 
     // Load recommendations when the screen is first displayed
     LaunchedEffect(Unit) {
@@ -54,7 +55,10 @@ fun RecommendationScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.refreshRecommendations() }) {
+                    IconButton(onClick = { 
+                        // Fetch a different batch of books when refresh is clicked
+                        viewModel.refreshRecommendations(forceNewBatch = true)
+                    }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                     }
                 }
@@ -124,10 +128,7 @@ fun RecommendationScreen(
                     ) {
                         item {
                             Text(
-                                text = if (isExternalSource) 
-                                    "Books we think you'll enjoy" 
-                                else 
-                                    "Based on your reading history",
+                                text = "Books you might enjoy",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.padding(bottom = 8.dp)
@@ -155,7 +156,8 @@ fun RecommendationCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        onClick = onClick
+        onClick = onClick,
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -163,23 +165,30 @@ fun RecommendationCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Book cover image
-            book.coverUrl?.let { url ->
-                AsyncImage(
-                    model = url,
-                    contentDescription = "Book cover for ${book.title}",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(width = 80.dp, height = 120.dp)
-                        .clip(MaterialTheme.shapes.small)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
+            // Book cover image with placeholder background when not available
+            Box(
+                modifier = Modifier
+                    .size(width = 80.dp, height = 120.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                // Display book cover image using AsyncImage with proper content scaling
+                book.coverUrl?.let { url ->
+                    AsyncImage(
+                        model = url,
+                        contentDescription = "Book cover for ${book.title}",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
+            
+            Spacer(modifier = Modifier.width(16.dp))
             
             // Book info
             Column(
-                modifier = Modifier
-                    .weight(1f)
+                modifier = Modifier.weight(1f)
             ) {
                 Text(
                     text = book.title,
@@ -228,22 +237,7 @@ fun RecommendationCard(
                     }
                 }
                 
-                // Display external badge if the book is from an external source
-                if (book.isExternal) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Surface(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = MaterialTheme.shapes.small,
-                        modifier = Modifier.padding(top = 4.dp)
-                    ) {
-                        Text(
-                            text = "External",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                        )
-                    }
-                }
+                // External indicator removed as requested
             }
         }
     }
