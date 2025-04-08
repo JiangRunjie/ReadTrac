@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permission to access the internet for fetching book data from external APIs -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".ReadTracApplication"
         android:allowBackup="true"
