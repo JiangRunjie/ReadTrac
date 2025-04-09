@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,8 +27,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.readtrac.readtrac.data.entity.Book
 import com.readtrac.readtrac.viewmodel.RecommendationViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +45,7 @@ fun RecommendationScreen(
     val recommendedBooks by viewModel.recommendedBooks.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     // Load recommendations when the screen is first displayed
     LaunchedEffect(Unit) {
@@ -49,11 +56,6 @@ fun RecommendationScreen(
         topBar = { 
             TopAppBar(
                 title = { Text("Book Recommendations") },
-                navigationIcon = {
-                    IconButton(onClick = onBackPressed) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
                 actions = {
                     IconButton(onClick = { 
                         // Fetch a different batch of books when refresh is clicked
@@ -70,8 +72,8 @@ fun RecommendationScreen(
             .padding(innerPadding)
         ) {
             when {
-                // Show loading spinner
-                isLoading -> {
+                // Show loading spinner when initially loading
+                isLoading && recommendedBooks.isEmpty() -> {
                     CircularProgressIndicator(
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -119,27 +121,45 @@ fun RecommendationScreen(
                     }
                 }
                 
-                // Show recommendations
+                // Show recommendations with SwipeRefresh
                 else -> {
-                    LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        item {
-                            Text(
-                                text = "Books you might enjoy",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(bottom = 8.dp)
+                    SwipeRefresh(
+                        state = rememberSwipeRefreshState(isLoading),
+                        onRefresh = {
+                            // Use the same callback as the refresh button
+                            coroutineScope.launch {
+                                viewModel.refreshRecommendations(forceNewBatch = true)
+                            }
+                        },
+                        indicator = { state, refreshTrigger ->
+                            SwipeRefreshIndicator(
+                                state = state,
+                                refreshTriggerDistance = refreshTrigger,
+                                backgroundColor = MaterialTheme.colorScheme.surface,
+                                contentColor = MaterialTheme.colorScheme.primary
                             )
                         }
-                        
-                        items(recommendedBooks) { book ->
-                            RecommendationCard(
-                                book = book,
-                                onClick = { onBookSelected(book.id) }
-                            )
+                    ) {
+                        LazyColumn(
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            item {
+                                Text(
+                                    text = "Books you might enjoy",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                )
+                            }
+                            
+                            items(recommendedBooks) { book ->
+                                RecommendationCard(
+                                    book = book,
+                                    onClick = { onBookSelected(book.id) }
+                                )
+                            }
                         }
                     }
                 }

@@ -62,6 +62,9 @@ dependencies {
     // Coil for image loading
     implementation("io.coil-kt:coil-compose:2.5.0")
     
+    // Pull-to-refresh functionality
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.32.0")
+    
     // KSP processing for Room
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.android.compiler)
