@@ -1,5 +1,6 @@
 package com.readtrac.readtrac.data.network
 
+import android.util.Log
 import com.readtrac.readtrac.data.model.BookEntity
 
 /**
@@ -10,6 +11,8 @@ import com.readtrac.readtrac.data.model.BookEntity
  */
 object BookApiMapper {
     
+    private const val TAG = "BookApiMapper"
+    
     /**
      * Convert a BookApiItem to a BookEntity
      * 
@@ -19,12 +22,20 @@ object BookApiMapper {
     fun mapToBookEntity(apiItem: BookApiItem): BookEntity {
         val volumeInfo = apiItem.volumeInfo
         
+        // Fix image URLs - Google Books API returns HTTP urls, but Android requires HTTPS
+        val originalCoverUrl = volumeInfo.imageLinks?.thumbnail
+        val fixedCoverUrl = originalCoverUrl?.replace("http://", "https://")
+        
+        // Log for debugging
+        Log.d(TAG, "Original cover URL: $originalCoverUrl")
+        Log.d(TAG, "Fixed cover URL: $fixedCoverUrl")
+        
         return BookEntity(
             id = 0, // Room will generate a new ID
             title = volumeInfo.title,
             author = volumeInfo.authors?.joinToString(", ") ?: "Unknown Author",
             isbn = apiItem.id, // Using the API ID as ISBN
-            coverUrl = volumeInfo.imageLinks?.thumbnail,
+            coverUrl = fixedCoverUrl,
             genre = volumeInfo.categories?.firstOrNull(),
             description = volumeInfo.description,
             rating = volumeInfo.averageRating,

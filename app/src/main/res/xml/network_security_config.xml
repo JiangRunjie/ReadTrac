@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Allow cleartext traffic for specific domains that might serve HTTP book cover images -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">books.google.com</domain>
+        <domain includeSubdomains="true">googleapis.com</domain>
+    </domain-config>
+</network-security-config>
