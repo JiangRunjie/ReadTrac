@@ -2,9 +2,9 @@ package com.readtrac.readtrac.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.readtrac.readtrac.data.model.BookEntity
-import com.readtrac.readtrac.data.repository.IBookRepository
-import com.readtrac.readtrac.data.entity.Book
+import com.readtrac.readtrac.model.BookEntity
+import com.readtrac.readtrac.repository.IBookRepository
+import com.readtrac.readtrac.model.entity.Book
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

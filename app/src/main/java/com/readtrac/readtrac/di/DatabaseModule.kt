@@ -2,9 +2,9 @@ package com.readtrac.readtrac.di
 
 import android.content.Context
 import androidx.room.Room
-import com.readtrac.readtrac.data.dao.BookDao
-import com.readtrac.readtrac.data.dao.ReviewDao
-import com.readtrac.readtrac.data.database.AppDatabase
+import com.readtrac.readtrac.model.dao.BookDao
+import com.readtrac.readtrac.model.dao.ReviewDao
+import com.readtrac.readtrac.database.AppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -2,9 +2,9 @@ package com.readtrac.readtrac.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.readtrac.readtrac.data.model.ReviewEntity
-import com.readtrac.readtrac.data.repository.IReviewRepository
-import com.readtrac.readtrac.data.entity.Review
+import com.readtrac.readtrac.model.ReviewEntity
+import com.readtrac.readtrac.repository.IReviewRepository
+import com.readtrac.readtrac.model.entity.Review
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

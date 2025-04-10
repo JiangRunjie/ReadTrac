@@ -4,8 +4,9 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.readtrac.readtrac.data.database.AppDatabase
-import com.readtrac.readtrac.data.model.BookEntity
+import com.readtrac.readtrac.database.AppDatabase
+import com.readtrac.readtrac.model.BookEntity
+import com.readtrac.readtrac.model.dao.BookDao
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After

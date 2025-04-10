@@ -2,8 +2,8 @@ package com.readtrac.readtrac.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.readtrac.readtrac.data.model.BookEntity
-import com.readtrac.readtrac.data.repository.BookRepository
+import com.readtrac.readtrac.model.BookEntity
+import com.readtrac.readtrac.repository.BookRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

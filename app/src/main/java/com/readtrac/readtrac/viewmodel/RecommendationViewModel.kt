@@ -2,17 +2,16 @@ package com.readtrac.readtrac.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.readtrac.readtrac.data.entity.Book
-import com.readtrac.readtrac.data.model.BookEntity
-import com.readtrac.readtrac.data.recommendation.RecommendationEngine
-import com.readtrac.readtrac.data.repository.IBookRepository
+import com.readtrac.readtrac.model.entity.Book
+import com.readtrac.readtrac.model.BookEntity
+import com.readtrac.readtrac.model.RecommendationEngine
+import com.readtrac.readtrac.repository.IBookRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.random.Random
 
 /**
  * ViewModel for the recommendation screen

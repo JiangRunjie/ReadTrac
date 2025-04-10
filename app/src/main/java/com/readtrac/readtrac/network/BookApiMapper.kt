@@ -1,7 +1,7 @@
-package com.readtrac.readtrac.data.network
+package com.readtrac.readtrac.network
 
 import android.util.Log
-import com.readtrac.readtrac.data.model.BookEntity
+import com.readtrac.readtrac.model.BookEntity
 
 /**
  * Mapper class to convert BookApiItem objects to BookEntity objects

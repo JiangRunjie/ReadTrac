@@ -1,8 +1,8 @@
 package com.readtrac.readtrac.data.repository
 
-import com.readtrac.readtrac.data.dao.ReviewDao
-import com.readtrac.readtrac.data.model.ReviewEntity
-import com.readtrac.readtrac.util.anyObject
+import com.readtrac.readtrac.model.dao.ReviewDao
+import com.readtrac.readtrac.model.ReviewEntity
+import com.readtrac.readtrac.repository.ReviewRepository
 import com.readtrac.readtrac.util.whenever
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

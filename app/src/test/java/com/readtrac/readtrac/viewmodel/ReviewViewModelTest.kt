@@ -1,8 +1,8 @@
 package com.readtrac.readtrac.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.readtrac.readtrac.data.model.ReviewEntity
-import com.readtrac.readtrac.data.repository.IReviewRepository
+import com.readtrac.readtrac.model.ReviewEntity
+import com.readtrac.readtrac.repository.IReviewRepository
 import com.readtrac.readtrac.util.anyObject
 import com.readtrac.readtrac.util.whenever
 import kotlinx.coroutines.Dispatchers

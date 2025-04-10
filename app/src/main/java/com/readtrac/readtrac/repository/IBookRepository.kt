@@ -1,6 +1,6 @@
-package com.readtrac.readtrac.data.repository
+package com.readtrac.readtrac.repository
 
-import com.readtrac.readtrac.data.model.BookEntity
+import com.readtrac.readtrac.model.BookEntity
 import kotlinx.coroutines.flow.Flow
 
 /**

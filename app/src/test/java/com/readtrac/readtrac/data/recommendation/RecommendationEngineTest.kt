@@ -1,6 +1,7 @@
 package com.readtrac.readtrac.data.recommendation
 
-import com.readtrac.readtrac.data.model.BookEntity
+import com.readtrac.readtrac.model.BookEntity
+import com.readtrac.readtrac.model.RecommendationEngine
 import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.*

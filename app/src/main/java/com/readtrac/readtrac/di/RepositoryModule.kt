@@ -1,14 +1,14 @@
 package com.readtrac.readtrac.di
 
-import com.readtrac.readtrac.data.dao.BookDao
-import com.readtrac.readtrac.data.dao.ReviewDao
-import com.readtrac.readtrac.data.network.BookApiService
-import com.readtrac.readtrac.data.network.NetworkClient
-import com.readtrac.readtrac.data.recommendation.RecommendationEngine
-import com.readtrac.readtrac.data.repository.BookRepository
-import com.readtrac.readtrac.data.repository.IBookRepository
-import com.readtrac.readtrac.data.repository.IReviewRepository
-import com.readtrac.readtrac.data.repository.ReviewRepository
+import com.readtrac.readtrac.model.dao.BookDao
+import com.readtrac.readtrac.model.dao.ReviewDao
+import com.readtrac.readtrac.network.BookApiService
+import com.readtrac.readtrac.network.NetworkClient
+import com.readtrac.readtrac.model.RecommendationEngine
+import com.readtrac.readtrac.repository.BookRepository
+import com.readtrac.readtrac.repository.IBookRepository
+import com.readtrac.readtrac.repository.IReviewRepository
+import com.readtrac.readtrac.repository.ReviewRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

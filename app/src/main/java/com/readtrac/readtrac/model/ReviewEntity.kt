@@ -1,4 +1,4 @@
-package com.readtrac.readtrac.data.model
+package com.readtrac.readtrac.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey

@@ -1,15 +1,13 @@
-package com.readtrac.readtrac.data.database
+package com.readtrac.readtrac.database
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.readtrac.readtrac.data.dao.BookDao
-import com.readtrac.readtrac.data.dao.ReviewDao
-import com.readtrac.readtrac.data.model.BookEntity
-import com.readtrac.readtrac.data.model.ReviewEntity
+import com.readtrac.readtrac.model.dao.BookDao
+import com.readtrac.readtrac.model.dao.ReviewDao
+import com.readtrac.readtrac.model.BookEntity
+import com.readtrac.readtrac.model.ReviewEntity
 
 /**
  * Main database class for the ReadTrac application

@@ -1,7 +1,7 @@
-package com.readtrac.readtrac.data.repository
+package com.readtrac.readtrac.repository
 
-import com.readtrac.readtrac.data.dao.ReviewDao
-import com.readtrac.readtrac.data.model.ReviewEntity
+import com.readtrac.readtrac.model.dao.ReviewDao
+import com.readtrac.readtrac.model.ReviewEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

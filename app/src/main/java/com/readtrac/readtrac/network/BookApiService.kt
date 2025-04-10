@@ -1,4 +1,4 @@
-package com.readtrac.readtrac.data.network
+package com.readtrac.readtrac.network
 
 import retrofit2.Response
 import retrofit2.http.GET

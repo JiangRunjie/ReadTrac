@@ -1,6 +1,6 @@
 package com.readtrac.readtrac.di
 
-import com.readtrac.readtrac.data.recommendation.RecommendationEngine
+import com.readtrac.readtrac.model.RecommendationEngine
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -2,10 +2,9 @@ package com.readtrac.readtrac.ui.view
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import com.readtrac.readtrac.data.entity.Book
-import com.readtrac.readtrac.data.model.BookEntity
-import com.readtrac.readtrac.data.recommendation.RecommendationEngine
-import com.readtrac.readtrac.data.repository.IBookRepository
+import com.readtrac.readtrac.model.entity.Book
+import com.readtrac.readtrac.model.RecommendationEngine
+import com.readtrac.readtrac.repository.IBookRepository
 import com.readtrac.readtrac.viewmodel.RecommendationViewModel
 import io.mockk.coEvery
 import io.mockk.every

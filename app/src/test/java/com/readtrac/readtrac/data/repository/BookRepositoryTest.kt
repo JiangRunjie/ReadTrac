@@ -1,7 +1,8 @@
 package com.readtrac.readtrac.data.repository
 
-import com.readtrac.readtrac.data.dao.BookDao
-import com.readtrac.readtrac.data.model.BookEntity
+import com.readtrac.readtrac.model.dao.BookDao
+import com.readtrac.readtrac.model.BookEntity
+import com.readtrac.readtrac.repository.BookRepository
 import com.readtrac.readtrac.util.anyObject
 import com.readtrac.readtrac.util.whenever
 import kotlinx.coroutines.Dispatchers

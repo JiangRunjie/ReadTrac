@@ -1,9 +1,11 @@
 package com.readtrac.readtrac.data.repository
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.readtrac.readtrac.data.database.AppDatabase
-import com.readtrac.readtrac.data.model.BookEntity
-import com.readtrac.readtrac.data.model.ReviewEntity
+import com.readtrac.readtrac.database.AppDatabase
+import com.readtrac.readtrac.model.BookEntity
+import com.readtrac.readtrac.model.ReviewEntity
+import com.readtrac.readtrac.repository.IBookRepository
+import com.readtrac.readtrac.repository.IReviewRepository
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.flow.first

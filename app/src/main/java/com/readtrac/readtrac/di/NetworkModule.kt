@@ -1,7 +1,7 @@
 package com.readtrac.readtrac.di
 
-import com.readtrac.readtrac.data.network.BookApiService
-import com.readtrac.readtrac.data.network.NetworkClient
+import com.readtrac.readtrac.network.BookApiService
+import com.readtrac.readtrac.network.NetworkClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

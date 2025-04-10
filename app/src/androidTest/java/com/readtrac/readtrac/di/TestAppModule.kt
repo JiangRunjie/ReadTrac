@@ -2,11 +2,11 @@ package com.readtrac.readtrac.di
 
 import android.content.Context
 import androidx.room.Room
-import com.readtrac.readtrac.data.database.AppDatabase
-import com.readtrac.readtrac.data.repository.BookRepository
-import com.readtrac.readtrac.data.repository.IBookRepository
-import com.readtrac.readtrac.data.repository.IReviewRepository
-import com.readtrac.readtrac.data.repository.ReviewRepository
+import com.readtrac.readtrac.database.AppDatabase
+import com.readtrac.readtrac.repository.BookRepository
+import com.readtrac.readtrac.repository.IBookRepository
+import com.readtrac.readtrac.repository.IReviewRepository
+import com.readtrac.readtrac.repository.ReviewRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext

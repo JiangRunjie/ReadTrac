@@ -25,7 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.alpha
-import com.readtrac.readtrac.data.entity.Book
+import com.readtrac.readtrac.model.entity.Book
 
 /**
  * Home screen that displays a list of books the user is tracking

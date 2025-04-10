@@ -1,19 +1,17 @@
-package com.readtrac.readtrac.data.repository
+package com.readtrac.readtrac.repository
 
-import com.readtrac.readtrac.data.dao.BookDao
-import com.readtrac.readtrac.data.model.BookEntity
-import com.readtrac.readtrac.data.network.BookApiMapper
-import com.readtrac.readtrac.data.network.BookApiService
-import com.readtrac.readtrac.data.network.NetworkClient
-import com.readtrac.readtrac.data.network.NetworkResult
-import com.readtrac.readtrac.data.recommendation.RecommendationEngine
+import com.readtrac.readtrac.model.dao.BookDao
+import com.readtrac.readtrac.model.BookEntity
+import com.readtrac.readtrac.network.BookApiMapper
+import com.readtrac.readtrac.network.BookApiService
+import com.readtrac.readtrac.network.NetworkClient
+import com.readtrac.readtrac.network.NetworkResult
+import com.readtrac.readtrac.model.RecommendationEngine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 import javax.inject.Singleton
 

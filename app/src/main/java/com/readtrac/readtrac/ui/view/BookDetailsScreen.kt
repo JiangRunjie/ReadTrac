@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.*
@@ -18,8 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.readtrac.readtrac.data.entity.Book
-import com.readtrac.readtrac.data.entity.Review
+import com.readtrac.readtrac.model.entity.Book
+import com.readtrac.readtrac.model.entity.Review
 import com.readtrac.readtrac.viewmodel.ReviewViewModel
 import com.readtrac.readtrac.viewmodel.BookDetailViewModel
 import kotlinx.coroutines.launch

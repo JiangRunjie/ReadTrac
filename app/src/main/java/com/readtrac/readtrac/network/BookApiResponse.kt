@@ -1,4 +1,4 @@
-package com.readtrac.readtrac.data.network
+package com.readtrac.readtrac.network
 
 import com.google.gson.annotations.SerializedName
 

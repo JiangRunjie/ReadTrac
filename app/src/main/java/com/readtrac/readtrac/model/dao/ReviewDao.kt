@@ -1,7 +1,7 @@
-package com.readtrac.readtrac.data.dao
+package com.readtrac.readtrac.model.dao
 
 import androidx.room.*
-import com.readtrac.readtrac.data.model.ReviewEntity
+import com.readtrac.readtrac.model.ReviewEntity
 import kotlinx.coroutines.flow.Flow
 
 /**
