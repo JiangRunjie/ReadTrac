@@ -225,10 +225,9 @@ fun AppNavigation() {
                 val viewModel: RecommendationViewModel = hiltViewModel()
                 RecommendationScreen(
                     viewModel = viewModel,
-                    onBookSelected = { bookId ->
-                        // Navigate to BookDetail screen with the selected book ID
-                        navController.navigate(Screen.BookDetail.createRoute(bookId))
-                    },
+                    // Updated to stay within the RecommendationScreen component
+                    // instead of navigating to BookDetailScreen
+                    onBookSelected = { },
                     onBackPressed = {
                         navController.popBackStack()
                     }

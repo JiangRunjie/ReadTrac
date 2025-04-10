@@ -3,10 +3,14 @@ package com.readtrac.readtrac.ui.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -14,8 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -31,6 +38,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.readtrac.readtrac.data.entity.Book
+import com.readtrac.readtrac.viewmodel.BookViewModel
 import com.readtrac.readtrac.viewmodel.RecommendationViewModel
 import kotlinx.coroutines.launch
 
@@ -46,6 +54,22 @@ fun RecommendationScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+    
+    // State to track if a book is selected for details view
+    var selectedBook by remember { mutableStateOf<Book?>(null) }
+    
+    // If a book is selected, show details screen instead of recommendations list
+    if (selectedBook != null) {
+        RecommendedBookDetailsScreen(
+            book = selectedBook!!,
+            onBackPressed = { selectedBook = null },
+            onAddToCollection = { bookAdded ->
+                // After adding to collection, return to recommendations
+                selectedBook = null
+            }
+        )
+        return
+    }
 
     // Load recommendations when the screen is first displayed
     LaunchedEffect(Unit) {
@@ -157,7 +181,10 @@ fun RecommendationScreen(
                             items(recommendedBooks) { book ->
                                 RecommendationCard(
                                     book = book,
-                                    onClick = { onBookSelected(book.id) }
+                                    onClick = { 
+                                        // Update to use the local state to show details screen
+                                        selectedBook = book
+                                    }
                                 )
                             }
                         }
@@ -258,6 +285,226 @@ fun RecommendationCard(
                 }
                 
                 // External indicator removed as requested
+            }
+        }
+    }
+}
+
+/**
+ * Screen for displaying detailed information about a recommended book
+ * with the option to add it to the user's collection
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RecommendedBookDetailsScreen(
+    book: Book,
+    bookViewModel: BookViewModel = hiltViewModel(),
+    onBackPressed: () -> Unit,
+    onAddToCollection: (Book) -> Unit
+) {
+    val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
+    var isAddingToCollection by remember { mutableStateOf(false) }
+    var isAddedSuccess by remember { mutableStateOf(false) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Book Details") },
+                navigationIcon = {
+                    IconButton(onClick = onBackPressed) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Go back"
+                        )
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(scrollState)
+        ) {
+            // Book cover and title section
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                // Book cover image
+                book.coverUrl?.let { url ->
+                    AsyncImage(
+                        model = url,
+                        contentDescription = "Cover of ${book.title}",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                    )
+                }
+            }
+            
+            // Book info section
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = book.title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text(
+                    text = "by ${book.author}",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Genre
+                book.genre?.let { genre ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    ) {
+                        Text(
+                            text = "Genre: ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = genre,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+                
+                // Rating display
+                book.rating?.let { rating ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    ) {
+                        Text(
+                            text = "Rating: ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        
+                        Row {
+                            repeat(5) { index ->
+                                val starColor = if (index < rating) 
+                                    Color(0xFFFFB400) else Color.Gray.copy(alpha = 0.3f)
+                                
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = null,
+                                    tint = starColor,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+                
+                Divider()
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Description or notes if available
+                book.notes?.let { notes ->
+                    if (notes.isNotEmpty()) {
+                        Text(
+                            text = "Description",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        
+                        Text(
+                            text = notes,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                        
+                        Divider()
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
+                
+                // Add to Collection button
+                Button(
+                    onClick = {
+                        isAddingToCollection = true
+                        scope.launch {
+                            try {
+                                bookViewModel.addBook(book.title, book.author)
+                                isAddedSuccess = true
+                                // Wait for a short time to show success message
+                                kotlinx.coroutines.delay(1500)
+                                onAddToCollection(book)
+                            } catch (e: Exception) {
+                                isAddingToCollection = false
+                            }
+                        }
+                    },
+                    enabled = !isAddingToCollection && !isAddedSuccess,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        if (isAddingToCollection) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                        } else if (isAddedSuccess) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = null
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        
+                        Text(
+                            text = when {
+                                isAddedSuccess -> "Added to Collection"
+                                isAddingToCollection -> "Adding..."
+                                else -> "Add to My Collection"
+                            }
+                        )
+                    }
+                }
+                
+                if (isAddedSuccess) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Book successfully added to your collection!",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }
