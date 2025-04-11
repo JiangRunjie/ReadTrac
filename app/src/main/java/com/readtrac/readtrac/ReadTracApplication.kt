@@ -12,8 +12,5 @@ import dagger.hilt.android.HiltAndroidApp
  */
 @HiltAndroidApp
 class ReadTracApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        // Additional initialization can be placed here
-    }
+    override fun onCreate() = super.onCreate()
 }

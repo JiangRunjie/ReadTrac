@@ -1,32 +1,38 @@
 [versions]
+accompanistSwiperefresh = "0.32.0"
 agp = "8.9.1"
+coilCompose = "2.5.0"
 converterGson = "2.9.0"
-coreTesting = "2.1.0"
+coreTesting = "2.2.0"
 hiltAndroidCompiler = "2.48"
 hiltNavigationCompose = "1.2.0"
 kotlin = "2.0.21"
-coreKtx = "1.15.0"
+coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 kotlinxCoroutinesTest = "1.7.3"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
-composeBom = "2025.03.01"
-mockitoCore = "5.3.1"
-mockitoInline = "5.3.1"
-mockitoKotlin = "4.1.0"
+composeBom = "2025.04.00"
+mockitoCore = "5.4.0"
+mockitoKotlin = "5.0.0"
 navigationCompose = "2.8.9"
+#noinspection GradleDependency
 hilt = "2.48"
 retrofit = "2.10.0"
+#noinspection GradleDependency
 room = "2.5.2"
+#noinspection GradleDependency
 roomCompiler = "2.5.2"
 
 [libraries]
+accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanistSwiperefresh" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroidCompiler" }
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hiltAndroidCompiler" }

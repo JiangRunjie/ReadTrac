@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.readtrac.readtrac.ui.view
 
 import androidx.compose.foundation.background
