@@ -17,6 +17,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
@@ -34,7 +35,7 @@ class ReviewRepositoryIntegrationTest {
     @Inject
     lateinit var bookRepository: IBookRepository
 
-    private lateinit var testBookId: Long
+    private var testBookId by Delegates.notNull<Long>()
     private lateinit var testReview1: ReviewEntity
     private lateinit var testReview2: ReviewEntity
 
